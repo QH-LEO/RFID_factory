@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.mapper.GoodsTypeMapper">
+
+    <resultMap id="GoodsTypeResult" type="com.example.demo.pojo.GoodsType">
+        <id property="id" column="ID"/>
+        <result property="factoryID" column="FACTORY_ID"/>
+        <result property="name" column="NAME"/>
+
+        <result property="version" column="_VERSION"/>
+        <result property="cuid" column="_CREATE_USER_ID"/>
+        <result property="cname" column="_CREATE_USER_NAME"/>
+        <result property="ctime" column="_CREATE_TIME"/>
+        <result property="uuid" column="_UPDATE_USER_ID"/>
+        <result property="uname" column="_UPDATE_USER_NAME"/>
+        <result property="utime" column="_UPDATE_TIME"/>
+    </resultMap>
+
+    <select id="FindByTypeID"  resultMap="GoodsTypeResult">
+    select * from TB_GOODS_TYPE where ID = #{id}
+    </select>
+
+
+</mapper>

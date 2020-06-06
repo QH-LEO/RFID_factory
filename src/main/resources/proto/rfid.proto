@@ -1,0 +1,148 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.example.demo.rfid";
+option java_outer_classname = "RFIDProto";
+
+package rfid;
+
+service RFIDDispenser {
+    // 注册, RFID操作设备注册
+    rpc Register(RegisterParam) returns (RegisterReply) {};
+}
+
+// RFID 操作
+service RFID {
+    // 读信息
+    // 操作过程
+    // 0. 发送开始请求体
+    // 1. 开始带缓存的盘点
+    // 2. 读取盘点信息(1s 一轮)
+    // 3. 读5s ,然后开始挨个获取缓存中的 user区域信息 , 并把读到的信息返回
+    // 4. 做 1s 的盘点 
+    // 5. 读取 刚才没读到的 rfid上的 user区信息 , 并返回读到的信息
+    // 6. 接收到停止请求体, 结束盘点循环
+    rpc Read(stream ReadParam) returns (stream ReadReply) {};
+    // 写信息
+    // 操作过程
+    // 0. 发送写请求体
+    // 1. 按列表循环绑定指定epc
+    // 2. 写 5s 或着 写完所有要写的标签
+    // 3. 返回写成功的标签信息
+    // 4. 每 1s 返回一次, 失败的标签信息
+    // 其它: 写完后自动锁定 4个区域
+    rpc Write(stream WriteParam) returns (stream WriteReply) {};
+    // 初始化标签
+    // 只有debug节点可以使用该功能
+    rpc Init(stream InitParam) returns (stream InitReply) {};
+}
+
+// 通用请求信息
+message BaseParam {
+}
+
+// 通用返回信息
+message BaseReply {
+    ResultCode ResultCode = 1;
+    string ResultMsg = 2;
+}
+
+enum SiteType {
+    // 0. 调试用
+    DEBUG = 0;
+    // 1. 标签发放者
+    DISPENSER = 1;
+    // 2. 质检站点
+    CHECKER = 2;
+    // 3. 入库站点
+    ENTRY = 3;
+    // 4. 出库站点
+    EXIT = 4;
+}
+
+// 注册 RFID 设备
+message RegisterParam {
+    BaseParam BaseInfo = 1;
+    // 工厂ID
+    int64 FacotryId = 2;
+    // 站点类型
+    repeated SiteType SiteTypes = 3;
+    // RPC地址
+    string RPCAddr = 4;
+    // 公钥
+    bytes PublicKey = 5;
+}
+
+message RegisterReply {
+    BaseReply BaseInfo = 1;
+    bytes PublicKey = 2;
+}
+
+// RFID 的EPC和USER区域储存ID对比
+message RFIDInfo { 
+    BaseReply BaseInfo = 1;
+    int64 Id = 2; // USER区域存储的ID
+    bytes EPC = 3;
+    int64 FactoryId = 4;
+}
+
+// 读RFID
+message ReadParam {
+    BaseParam BaseInfo = 1;
+    OpCode OpType = 2;
+}
+message ReadReply {
+    BaseReply BaseInfo = 1;
+    repeated RFIDInfo List = 2;
+    int64 Count = 3;
+}
+
+// 写RFID
+message WriteParam {
+    BaseParam BaseInfo = 1;
+    repeated RFIDInfo List = 2;
+    OpCode OpType = 3;
+}
+message WriteReply {
+    BaseReply BaseInfo = 1;
+    repeated RFIDInfo List = 2;
+    int64 Count =3;
+}
+
+// 初始化RFID
+message InitParam {
+    BaseParam BaseInfo = 1;
+    OpCode OpType = 2;
+}
+message InitReply {
+    BaseReply BaseInfo = 1;
+    int64 ReadNum = 2;
+    int64 WriteNum =3;
+}
+
+enum ResultCode {
+    NotErr = 0;
+
+    // 初始化错误
+    ErrNotInDebugMode = 1;
+    // 开始初始化错误
+    ErrStartInit = 2;
+    // 停止初始化错误
+    ErrStopInit = 3;
+
+
+    // 开始盘存错误
+    ErrStartInventory = 4;
+    // 停止盘存错误
+    ErrStopInventory = 5;
+    // 读取盘存标签缓存失败
+    ErrReadInventory = 6;
+    // 清空盘存缓存失败
+    ErrResetInventory = 7;
+
+}
+
+enum OpCode {
+    Start = 0;
+    Stop = 1;
+}

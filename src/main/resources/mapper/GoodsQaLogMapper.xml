@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.mapper.GoodsQaLogMapper">
+
+    <resultMap id="GoodsQaLogResult" type="com.example.demo.pojo.GoodsQaLog">
+        <id property="id" column="ID"/>
+        <result property="factoryID" column="FACTORY_ID"/>
+        <result property="goodsID" column="GOODS_ID"/>
+        <result property="qaID" column="QA_ID"/>
+        <result property="tailorID" column="TAILOR_ID"/>
+        <result property="status" column="STATUS"/>
+
+        <result property="version" column="_VERSION"/>
+        <result property="cuid" column="_CREATE_USER_ID"/>
+        <result property="cname" column="_CREATE_USER_NAME"/>
+        <result property="ctime" column="_CREATE_TIME"/>
+        <result property="uuid" column="_UPDATE_USER_ID"/>
+        <result property="uname" column="_UPDATE_USER_NAME"/>
+        <result property="utime" column="_UPDATE_TIME"/>
+    </resultMap>
+
+    <parameterMap id="GoodsQaLogParameter" type="com.example.demo.pojo.GoodsQaLog">
+    </parameterMap>
+
+
+    <select id="FindByQaLogID"  resultMap="GoodsQaLogResult">
+    select * from TB_GOODS_QA_LOG where ID = #{id}
+    </select>
+
+    <insert id="AddQaLog" parameterMap="GoodsQaLogParameter">
+        insert into
+        TB_GOODS_QA_LOG (ID, FACTORY_ID, GOODS_ID, QA_ID, TAILOR_ID, STATUS, "_VERSION", "_CREATE_USER_ID", "_CREATE_USER_NAME", "_CREATE_TIME", "_UPDATE_USER_ID", "_UPDATE_USER_NAME", "_UPDATE_TIME")
+        value (#{id},#{factoryID},#{goodsID},#{goodsID},#{qaID},#{tailorID},#{status},#{version},#{cuid},#{cname},#{ctime},#{uuid},#{uname},#{utime})
+    </insert>
+
+</mapper>
